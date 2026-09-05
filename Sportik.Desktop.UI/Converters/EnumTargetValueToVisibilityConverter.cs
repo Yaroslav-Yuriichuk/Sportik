@@ -8,10 +8,20 @@ namespace Sportik.Desktop.UI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (parameter is string targetStateString &&
-                Enum.TryParse(value.GetType(), targetStateString, out object targetState))
+            if (!(parameter is string targetValuesString))
             {
-                return value.Equals(targetState) ? Visibility.Visible : Visibility.Collapsed;
+                return Visibility.Collapsed;
+            }
+
+            string[] targetValueStrings = targetValuesString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string targetValueString in targetValueStrings)
+            {
+                if (Enum.TryParse(value.GetType(), targetValueString, out object targetValue) &&
+                    value.Equals(targetValue))
+                {
+                    return Visibility.Visible;
+                }
             }
 
             return Visibility.Collapsed;

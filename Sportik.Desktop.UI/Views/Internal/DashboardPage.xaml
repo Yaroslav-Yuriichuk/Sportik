@@ -15,10 +15,6 @@
     </Page.DataContext>
 
     <Page.Resources>
-        <converters:GuidToStringConverter x:Name="GuidToStringConverter" />
-        <converters:BoolToVisibilityConverter x:Name="BoolToVisibilityConverter" />
-        <converters:BoolToInvertedVisibilityConverter x:Name="BoolToInvertedVisibilityConverter" />
-
         <Style x:Key="RoundedColumnDataPointStyle" TargetType="charting:ColumnDataPoint">
             <Setter Property="Background" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
             <Setter Property="BorderBrush" Value="{x:Null}" />

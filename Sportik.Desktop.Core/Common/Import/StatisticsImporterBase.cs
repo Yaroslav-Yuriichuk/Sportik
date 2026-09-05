@@ -38,7 +38,7 @@ namespace Sportik.Desktop.Core.Common.Import
                 throw new InvalidOperationException("Importer is not initialized.");
             }
 
-            IList<ImportExercise> importExercises = await GetExercisesAsync(cancellationToken);
+            IList<ImportSet> importExercises = await GetExercisesAsync(cancellationToken);
 
             if (importExercises.Count == 0)
             {
@@ -70,7 +70,7 @@ namespace Sportik.Desktop.Core.Common.Import
                 .GroupBy(e => e.Name ?? string.Empty)
                 .ToDictionary(g => g.Key, g => g.First());
 
-            foreach (ImportExercise importExercise in importExercises)
+            foreach (ImportSet importExercise in importExercises)
             {
                 if (!exercisesByName.TryGetValue(importExercise.Name, out Exercise exercise))
                 {
@@ -104,7 +104,7 @@ namespace Sportik.Desktop.Core.Common.Import
             }
         }
 
-        protected abstract Task<IList<ImportExercise>> GetExercisesAsync(CancellationToken cancellationToken);
+        protected abstract Task<IList<ImportSet>> GetExercisesAsync(CancellationToken cancellationToken);
 
         private readonly struct ImportKey : IEquatable<ImportKey>
         {

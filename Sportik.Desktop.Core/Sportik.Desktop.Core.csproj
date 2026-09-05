@@ -195,7 +195,8 @@
     <Compile Include="Models\Exercise.cs" />
     <Compile Include="Models\ExerciseSet.cs" />
     <Compile Include="Models\ExportExercise.cs" />
-    <Compile Include="Models\ImportExercise.cs" />
+    <Compile Include="Models\ExportSet.cs" />
+    <Compile Include="Models\ImportSet.cs" />
     <Compile Include="Models\ImportExportCache.cs" />
     <Compile Include="Models\ReminderCache.cs" />
     <Compile Include="Models\ReminderNotification.cs" />

@@ -152,6 +152,7 @@
     <Compile Include="Models\Dashboard\DashboardCache.cs" />
     <Compile Include="Models\Dashboard\DashboardGrouping.cs" />
     <Compile Include="Models\Dashboard\DashboardTarget.cs" />
+    <Compile Include="Models\ImportExportScope.cs" />
     <Compile Include="Models\NavigationScope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Implementations\FrameNavigationService.cs" />
@@ -185,6 +186,7 @@
     <Compile Include="ViewModels\Statistics\DayStatisticsViewModel.cs" />
     <Compile Include="ViewModels\Statistics\ExerciseStatisticsViewModel.cs" />
     <Compile Include="ViewModels\Statistics\ExportViewModel.cs" />
+    <Compile Include="ViewModels\Statistics\ImportExportScopeOption.cs" />
     <Compile Include="ViewModels\Statistics\ImportViewModel.cs" />
     <Compile Include="ViewModels\Statistics\StatisticsViewModel.cs" />
     <Compile Include="ViewModels\Statistics\WeekStatisticsViewModel.cs" />

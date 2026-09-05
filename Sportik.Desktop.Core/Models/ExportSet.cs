@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
 namespace Sportik.Desktop.Core.Models
 {
-    public sealed class ImportExercise
+    public sealed class ExportSet
     {
         public string Name { get; }
 
@@ -10,7 +10,7 @@ namespace Sportik.Desktop.Core.Models
 
         public int Repetitions { get; }
 
-        public ImportExercise(string name, DateTimeOffset loggedAt, int repetitions)
+        public ExportSet(string name, DateTimeOffset loggedAt, int repetitions)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             LoggedAt = loggedAt;

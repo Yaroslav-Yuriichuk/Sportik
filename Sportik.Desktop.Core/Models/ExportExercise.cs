@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Sportik.Desktop.Core.Models
 {
@@ -6,15 +6,18 @@ namespace Sportik.Desktop.Core.Models
     {
         public string Name { get; }
 
-        public DateTimeOffset LoggedAt { get; }
+        public int TargetRepetitions { get; }
 
-        public int Repetitions { get; }
+        public TimeSpan TimeBetweenSets { get; }
 
-        public ExportExercise(string name, DateTimeOffset loggedAt, int repetitions)
+        public TimeSpan ExecutionTime { get; }
+
+        public ExportExercise(string name, int targetRepetitions, TimeSpan timeBetweenSets, TimeSpan executionTime)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            LoggedAt = loggedAt;
-            Repetitions = repetitions;
+            TargetRepetitions = targetRepetitions;
+            TimeBetweenSets = timeBetweenSets;
+            ExecutionTime = executionTime;
         }
     }
 }

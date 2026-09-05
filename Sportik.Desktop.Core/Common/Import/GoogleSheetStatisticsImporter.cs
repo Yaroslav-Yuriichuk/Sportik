@@ -24,7 +24,7 @@ namespace Sportik.Desktop.Core.Common.Import
             _sheetName = sheetName;
         }
 
-        protected override async Task<IList<ImportExercise>> GetExercisesAsync(CancellationToken cancellationToken)
+        protected override async Task<IList<ImportSet>> GetExercisesAsync(CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(_sheetUrlOrId))
             {
@@ -61,7 +61,7 @@ namespace Sportik.Desktop.Core.Common.Import
 
             ValueRange response = await request.ExecuteAsync(cancellationToken);
 
-            List<ImportExercise> importExercises = new List<ImportExercise>();
+            List<ImportSet> importExercises = new List<ImportSet>();
 
             foreach (IList<object> row in response.Values ?? Enumerable.Empty<IList<object>>())
             {
@@ -69,7 +69,7 @@ namespace Sportik.Desktop.Core.Common.Import
                 DateTimeOffset loggedAt = DateTimeOffset.Parse(row[1].ToString());
                 int repetitions = int.Parse(row[2].ToString());
 
-                importExercises.Add(new ImportExercise(exerciseName, loggedAt, repetitions));
+                importExercises.Add(new ImportSet(exerciseName, loggedAt, repetitions));
             }
 
             return importExercises;
