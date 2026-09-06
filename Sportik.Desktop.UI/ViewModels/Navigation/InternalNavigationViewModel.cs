@@ -5,6 +5,7 @@ using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Sportik.Desktop.Core.Events;
+using Sportik.Desktop.Core.Models;
 using Sportik.Desktop.Core.Services.Interfaces;
 using Sportik.Desktop.UI.Helpers;
 using Sportik.Desktop.UI.Models;
@@ -98,6 +99,11 @@ namespace Sportik.Desktop.UI.ViewModels.Navigation
 
         private void EventsService_Event(ExerciseCreatedEventArgs args)
         {
+            if (args.CreationSource != CreationSource.User)
+            {
+                return;
+            }
+
             NavigationOption option = MenuItemOptions.FirstOrDefault(o => o.PageType == typeof(ExercisesPage));
 
             if (option != null && SelectedMenuItem != option)

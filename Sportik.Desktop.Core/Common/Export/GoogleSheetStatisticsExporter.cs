@@ -10,6 +10,7 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Sportik.Desktop.Core.Helpers;
 using Sportik.Desktop.Core.Models;
+using Sportik.Desktop.Core.Models.ImportExport;
 
 namespace Sportik.Desktop.Core.Common.Export
 {
@@ -81,8 +82,8 @@ namespace Sportik.Desktop.Core.Common.Export
                 {
                     exercise.Name,
                     exercise.TargetRepetitions,
-                    exercise.TimeBetweenSets,
-                    exercise.ExecutionTime,
+                    exercise.TimeBetweenSets.TotalMinutes,
+                    exercise.ExecutionTime.TotalMinutes,
                 })
                 .ToList();
 
@@ -105,7 +106,7 @@ namespace Sportik.Desktop.Core.Common.Export
             await updateRequest.ExecuteAsync(cancellationToken);
         }
 
-        protected override async Task WriteSetsAsync(IList<ExportSet> exercises, CancellationToken cancellationToken)
+        protected override async Task WriteSetsAsync(IList<ExportSet> sets, CancellationToken cancellationToken)
         {
             if (!GoogleSheetsHelper.TryParseSheetId(_sheetUrlOrId, out string sheetId))
             {
@@ -135,12 +136,12 @@ namespace Sportik.Desktop.Core.Common.Export
 
             await clearRequest.ExecuteAsync(cancellationToken);
 
-            List<IList<object>> values = exercises
-                .Select(exercise => (IList<object>)new List<object>
+            List<IList<object>> values = sets
+                .Select(set => (IList<object>)new List<object>
                 {
-                    exercise.Name,
-                    exercise.LoggedAt.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
-                    exercise.Repetitions,
+                    set.Name,
+                    set.LoggedAt.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
+                    set.Repetitions,
                 })
                 .ToList();
 

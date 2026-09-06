@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sportik.Desktop.Core.Models
+namespace Sportik.Desktop.Core.Models.ImportExport
 {
     public sealed class ExportExercise
     {

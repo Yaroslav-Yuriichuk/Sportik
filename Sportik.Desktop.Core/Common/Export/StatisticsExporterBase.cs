@@ -10,6 +10,7 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Sportik.Desktop.Core.Helpers;
 using Sportik.Desktop.Core.Models;
+using Sportik.Desktop.Core.Models.ImportExport;
 using Sportik.Desktop.Core.Repositories.Interfaces;
 
 namespace Sportik.Desktop.Core.Common.Export
@@ -78,6 +79,6 @@ namespace Sportik.Desktop.Core.Common.Export
 
         protected abstract Task WriteExercisesAsync(IList<ExportExercise> exercises, CancellationToken cancellationToken);
 
-        protected abstract Task WriteSetsAsync(IList<ExportSet> exercises, CancellationToken cancellationToken);
+        protected abstract Task WriteSetsAsync(IList<ExportSet> sets, CancellationToken cancellationToken);
     }
 }

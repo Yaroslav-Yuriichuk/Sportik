@@ -50,7 +50,7 @@ namespace Sportik.Desktop.Core.Common.Synchronization
 
             foreach (Exercise exercise in addLocalExercisesTask.Result)
             {
-                EventsService.RaiseEvent(new ExerciseCreatedEventArgs(exercise, false));
+                EventsService.RaiseEvent(new ExerciseCreatedEventArgs(exercise, CreationSource.Synchronization));
             }
         }
 
