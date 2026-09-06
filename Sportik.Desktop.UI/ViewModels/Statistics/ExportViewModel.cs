@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Sportik.Desktop.Core.Common;
 using Sportik.Desktop.Core.Common.Export;
 using Sportik.Desktop.Core.Extensions;
-using Sportik.Desktop.Core.Models;
 using Sportik.Desktop.Core.Services.Interfaces;
+using Sportik.Desktop.UI.Models;
 
 namespace Sportik.Desktop.UI.ViewModels.Statistics
 {
@@ -20,6 +22,43 @@ namespace Sportik.Desktop.UI.ViewModels.Statistics
             private set => SetField(ref _isOpen, value);
         }
 
+        private ObservableCollection<ImportExportScopeOption> _scopeOptions;
+
+        public ObservableCollection<ImportExportScopeOption> ScopeOptions
+        {
+            get => _scopeOptions;
+            private set
+            {
+                if (SetField(ref _scopeOptions, value))
+                {
+                    SetField(ref _selectedScopeOption, value[0], nameof(SelectedScopeOption));
+                    Scope = SelectedScopeOption.Scope;
+                }
+            }
+        }
+
+        private ImportExportScopeOption _selectedScopeOption;
+
+        public ImportExportScopeOption SelectedScopeOption
+        {
+            get => _selectedScopeOption;
+            set
+            {
+                if (SetField(ref _selectedScopeOption, value))
+                {
+                    Scope = SelectedScopeOption.Scope;
+                }
+            }
+        }
+
+        private ImportExportScope _scope;
+
+        public ImportExportScope Scope
+        {
+            get => _scope;
+            private set => SetField(ref _scope, value);
+        }
+
         private string _googleSheetUrlOrId;
 
         public string GoogleSheetUrlOrId
@@ -28,12 +67,20 @@ namespace Sportik.Desktop.UI.ViewModels.Statistics
             set => SetField(ref _googleSheetUrlOrId, value);
         }
 
-        private string _sheetName;
+        private string _exercisesSheetName;
 
-        public string SheetName
+        public string ExercisesSheetName
         {
-            get => _sheetName;
-            set => SetField(ref _sheetName, value);
+            get => _exercisesSheetName;
+            set => SetField(ref _exercisesSheetName, value);
+        }
+
+        private string _setsSetsSheetName;
+
+        public string SetsSheetName
+        {
+            get => _setsSetsSheetName;
+            set => SetField(ref _setsSetsSheetName, value);
         }
 
         public ReactiveRelayCommand ExportCommand { get; }
@@ -46,13 +93,29 @@ namespace Sportik.Desktop.UI.ViewModels.Statistics
 
         public ExportViewModel()
         {
+            ScopeOptions = new ObservableCollection<ImportExportScopeOption>
+            {
+                new ImportExportScopeOption("Exercises and Sets", ImportExportScope.ExercisesAndSets),
+                new ImportExportScopeOption("Exercises only", ImportExportScope.Exercises),
+                new ImportExportScopeOption("Sets only", ImportExportScope.Sets)
+            };
+
             ExportCommand = new ReactiveRelayCommand(Export);
             CloseCommand = new ReactiveRelayCommand(Close);
 
             if (PersistentCacheService.TryGet(out ImportExportCache importExportCache))
             {
+                ImportExportScopeOption scopeOption = ScopeOptions.FirstOrDefault(option => option.Scope == importExportCache.LastExportScope);
+
+                if (scopeOption != null)
+                {
+                    SetField(ref _selectedScopeOption, scopeOption, nameof(SelectedScopeOption));
+                    Scope = SelectedScopeOption.Scope;
+                }
+
                 GoogleSheetUrlOrId = importExportCache.LastExportGoogleSheetUrlOrId;
-                SheetName = importExportCache.LastExportSheetName;
+                ExercisesSheetName = importExportCache.LastExportExercisesSheetName;
+                SetsSheetName = importExportCache.LastExportSetsSheetName;
             }
         }
 
@@ -82,10 +145,19 @@ namespace Sportik.Desktop.UI.ViewModels.Statistics
             ExportCommand.IsExecutable = false;
             CloseCommand.IsExecutable = false;
 
+            ImportExportScope scope = Scope;
             string googleSheetUrlOrId = GoogleSheetUrlOrId;
-            string sheetName = SheetName;
+            string exercisesSheetName = ExercisesSheetName;
+            string setsSheetName = SetsSheetName;
 
-            IStatisticsExporter exporter = new GoogleSheetStatisticsExporter(googleSheetUrlOrId, sheetName);
+            IStatisticsExporter exporter = scope switch
+            {
+                ImportExportScope.Exercises => new GoogleSheetStatisticsExporter(googleSheetUrlOrId, exercisesSheetName, null),
+                ImportExportScope.Sets => new GoogleSheetStatisticsExporter(googleSheetUrlOrId, null, setsSheetName),
+                ImportExportScope.ExercisesAndSets => new GoogleSheetStatisticsExporter(googleSheetUrlOrId, exercisesSheetName, setsSheetName),
+                _ => throw new ArgumentOutOfRangeException(nameof(Scope), Scope, "Invalid import/export scope.")
+            };
+
             OperationResult result = await StatisticsExportService.ExportAsync(exporter, cancellationToken);
 
             ExportCommand.IsExecutable = true;
@@ -95,8 +167,18 @@ namespace Sportik.Desktop.UI.ViewModels.Statistics
             {
                 ImportExportCache importExportCache = PersistentCacheService.GetOrNew<ImportExportCache>();
 
+                importExportCache.LastExportScope = scope;
                 importExportCache.LastExportGoogleSheetUrlOrId = googleSheetUrlOrId;
-                importExportCache.LastExportSheetName = sheetName;
+
+                if (scope == ImportExportScope.Exercises || scope == ImportExportScope.ExercisesAndSets)
+                {
+                    importExportCache.LastExportExercisesSheetName = exercisesSheetName;
+                }
+
+                if (scope == ImportExportScope.Sets || scope == ImportExportScope.ExercisesAndSets)
+                {
+                    importExportCache.LastExportSetsSheetName = setsSheetName;
+                }
 
                 PersistentCacheService.Set(importExportCache);
 

@@ -146,7 +146,7 @@ namespace Sportik.Desktop.Core.States.App
         {
             _reminderService.AddExercise(args.Exercise.Id);
 
-            if (!args.SynchronizationRequired)
+            if (args.CreationSource == CreationSource.Synchronization)
             {
                 return;
             }

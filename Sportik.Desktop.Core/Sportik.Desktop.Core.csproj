@@ -191,12 +191,14 @@
     <Compile Include="Models\AppModeCache.cs" />
     <Compile Include="Models\AppRunCache.cs" />
     <Compile Include="Models\Automation\ReminderMode.cs" />
+    <Compile Include="Models\CreationSource.cs" />
     <Compile Include="Models\DataSource.cs" />
     <Compile Include="Models\Exercise.cs" />
     <Compile Include="Models\ExerciseSet.cs" />
-    <Compile Include="Models\ExportExercise.cs" />
-    <Compile Include="Models\ImportExercise.cs" />
-    <Compile Include="Models\ImportExportCache.cs" />
+    <Compile Include="Models\ImportExport\ExportExercise.cs" />
+    <Compile Include="Models\ImportExport\ExportSet.cs" />
+    <Compile Include="Models\ImportExport\ImportExercise.cs" />
+    <Compile Include="Models\ImportExport\ImportSet.cs" />
     <Compile Include="Models\ReminderCache.cs" />
     <Compile Include="Models\ReminderNotification.cs" />
     <Compile Include="Models\SequentialExercisesCache.cs" />

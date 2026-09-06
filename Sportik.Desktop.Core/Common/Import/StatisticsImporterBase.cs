@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Sportik.Desktop.Core.Events;
 using Sportik.Desktop.Core.Models;
+using Sportik.Desktop.Core.Models.ImportExport;
+using Sportik.Desktop.Core.Models.Settings;
 using Sportik.Desktop.Core.Repositories.Interfaces;
 using Sportik.Desktop.Core.Services.Interfaces;
 
@@ -38,11 +40,87 @@ namespace Sportik.Desktop.Core.Common.Import
                 throw new InvalidOperationException("Importer is not initialized.");
             }
 
-            IList<ImportExercise> importExercises = await GetExercisesAsync(cancellationToken);
+            if (ToImportExercises())
+            {
+                IList<ImportExercise> importExercises = await GetExercisesAsync(cancellationToken);
+                IList<AddExerciseModel> exercisesToAdd = await FilterExercises(importExercises, cancellationToken);
 
+                if (exercisesToAdd.Count == 0)
+                {
+                    return;
+                }
+
+                IEnumerable<Exercise> addedExercises = await _exercisesRepository.AddRangeAsync(exercisesToAdd, cancellationToken);
+
+                foreach (Exercise addedExercise in addedExercises)
+                {
+                    _eventsService.RaiseEvent(new ExerciseCreatedEventArgs(addedExercise, CreationSource.Import));
+                }
+            }
+
+            if (ToImportSets())
+            {
+                IList<ImportSet> importSets = await GetSetsAsync(cancellationToken);
+                IList<AddExerciseSetModel> setsToAdd = await FilterSets(importSets, cancellationToken);
+
+                if (setsToAdd.Count == 0)
+                {
+                    return;
+                }
+
+                IEnumerable<ExerciseSet> addedSets = await _exerciseStatisticsRepository.AddRangeAsync(setsToAdd, cancellationToken);
+
+                foreach (ExerciseSet addedSet in addedSets)
+                {
+                    _eventsService.RaiseEvent(new ExerciseSetAddedEventArgs(addedSet, true));
+                }
+            }
+        }
+
+        protected abstract bool ToImportExercises();
+
+        protected abstract bool ToImportSets();
+
+        protected abstract Task<IList<ImportExercise>> GetExercisesAsync(CancellationToken cancellationToken);
+
+        protected abstract Task<IList<ImportSet>> GetSetsAsync(CancellationToken cancellationToken);
+
+        private async Task<IList<AddExerciseModel>> FilterExercises(IList<ImportExercise> importExercises, CancellationToken cancellationToken)
+        {
             if (importExercises.Count == 0)
             {
-                return;
+                return new List<AddExerciseModel>();
+            }
+
+            IEnumerable<Exercise> existingExercises = await _exercisesRepository.GetAllAsync(cancellationToken);
+            HashSet<string> existingNames = new HashSet<string>(existingExercises.Select(e => e.Name ?? string.Empty));
+
+            List<AddExerciseModel> exercisesToAdd = new List<AddExerciseModel>();
+
+            foreach (ImportExercise importExercise in importExercises)
+            {
+                if (string.IsNullOrWhiteSpace(importExercise.Name) || existingNames.Contains(importExercise.Name))
+                {
+                    continue;
+                }
+
+                ExerciseSettings exerciseSettings = new ExerciseSettings(
+                    false,
+                    importExercise.TargetRepetitions,
+                    importExercise.TimeBetweenSets,
+                    importExercise.ExecutionTime);
+
+                exercisesToAdd.Add(new AddExerciseModel(null, importExercise.Name, exerciseSettings));
+            }
+
+            return exercisesToAdd;
+        }
+
+        private async Task<IList<AddExerciseSetModel>> FilterSets(IList<ImportSet> importSets, CancellationToken cancellationToken)
+        {
+            if (importSets.Count == 0)
+            {
+                return new List<AddExerciseSetModel>();
             }
 
             IEnumerable<Exercise> exercises = await _exercisesRepository.GetAllAsync(cancellationToken);
@@ -70,14 +148,14 @@ namespace Sportik.Desktop.Core.Common.Import
                 .GroupBy(e => e.Name ?? string.Empty)
                 .ToDictionary(g => g.Key, g => g.First());
 
-            foreach (ImportExercise importExercise in importExercises)
+            foreach (ImportSet importSet in importSets)
             {
-                if (!exercisesByName.TryGetValue(importExercise.Name, out Exercise exercise))
+                if (!exercisesByName.TryGetValue(importSet.Name, out Exercise exercise))
                 {
                     continue;
                 }
 
-                ImportKey key = new ImportKey(importExercise.Name, importExercise.Repetitions, importExercise.LoggedAt);
+                ImportKey key = new ImportKey(importSet.Name, importSet.Repetitions, importSet.LoggedAt);
 
                 if (_validateDuplicates)
                 {
@@ -88,23 +166,11 @@ namespace Sportik.Desktop.Core.Common.Import
                 }
 
                 incomingKeys.Add(key);
-                setsToAdd.Add(new AddExerciseSetModel(null, importExercise.Repetitions, importExercise.LoggedAt, exercise.Id));
+                setsToAdd.Add(new AddExerciseSetModel(null, importSet.Repetitions, importSet.LoggedAt, exercise.Id));
             }
 
-            if (setsToAdd.Count == 0)
-            {
-                return;
-            }
-
-            IEnumerable<ExerciseSet> addedSets = await _exerciseStatisticsRepository.AddRangeAsync(setsToAdd, cancellationToken);
-
-            foreach (ExerciseSet addedSet in addedSets)
-            {
-                _eventsService.RaiseEvent(new ExerciseSetAddedEventArgs(addedSet, true));
-            }
+            return setsToAdd;
         }
-
-        protected abstract Task<IList<ImportExercise>> GetExercisesAsync(CancellationToken cancellationToken);
 
         private readonly struct ImportKey : IEquatable<ImportKey>
         {

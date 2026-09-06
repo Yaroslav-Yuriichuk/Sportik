@@ -19,6 +19,7 @@
         <converters:BoolToInvertedVisibilityConverter x:Name="BoolToInvertedVisibilityConverter" />
         <converters:DateTimeToStringConverter x:Name="DateTimeToStringConverter" />
         <converters:BoolToVisibilityConverter x:Name="BoolToVisibilityConverter" />
+        <converters:EnumTargetValueToVisibilityConverter x:Name="EnumTargetValueToVisibilityConverter" />
     </Page.Resources>
 
     <Grid>
@@ -249,6 +250,21 @@
                                FontWeight="SemiBold"
                                Margin="0 0 0 15" />
 
+                    <TextBlock Text="Scope"
+                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                               Margin="0 0 0 5" />
+
+                    <ComboBox HorizontalAlignment="Stretch"
+                              Margin="0 0 0 15"
+                              ItemsSource="{Binding ScopeOptions}"
+                              SelectedValue="{Binding SelectedScopeOption, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
                     <TextBlock Text="Google Sheet Url or Id"
                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
                                Margin="0 0 0 5" />
@@ -257,13 +273,25 @@
                              PlaceholderText="Enter Google Sheet Url or Id"
                              Text="{Binding GoogleSheetUrlOrId, Mode=TwoWay}" />
 
-                    <TextBlock Text="Sheet name"
+                    <TextBlock Text="Exercises sheet name"
                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                               Margin="0 0 0 5" />
+                               Margin="0 0 0 5"
+                               Visibility="{Binding Scope, Converter={StaticResource EnumTargetValueToVisibilityConverter}, ConverterParameter='Exercises,ExercisesAndSets'}" />
 
                     <TextBox Margin="0 0 0 15"
-                             PlaceholderText="Enter sheet name"
-                             Text="{Binding SheetName, Mode=TwoWay}" />
+                             PlaceholderText="Enter exercises sheet name"
+                             Text="{Binding ExercisesSheetName, Mode=TwoWay}"
+                             Visibility="{Binding Scope, Converter={StaticResource EnumTargetValueToVisibilityConverter}, ConverterParameter='Exercises,ExercisesAndSets'}" />
+
+                    <TextBlock Text="Sets sheet name"
+                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                               Margin="0 0 0 5"
+                               Visibility="{Binding Scope, Converter={StaticResource EnumTargetValueToVisibilityConverter}, ConverterParameter='Sets,ExercisesAndSets'}" />
+
+                    <TextBox Margin="0 0 0 15"
+                             PlaceholderText="Enter sets sheet name"
+                             Text="{Binding SetsSheetName, Mode=TwoWay}"
+                             Visibility="{Binding Scope, Converter={StaticResource EnumTargetValueToVisibilityConverter}, ConverterParameter='Sets,ExercisesAndSets'}" />
 
                     <CheckBox Content="Validate duplicates"
                               Margin="0 0 0 15"
@@ -307,6 +335,21 @@
                                FontWeight="SemiBold"
                                Margin="0 0 0 15" />
 
+                    <TextBlock Text="Scope"
+                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                               Margin="0 0 0 5" />
+
+                    <ComboBox HorizontalAlignment="Stretch"
+                              Margin="0 0 0 15"
+                              ItemsSource="{Binding ScopeOptions}"
+                              SelectedValue="{Binding SelectedScopeOption, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
                     <TextBlock Text="Google Sheet Url or Id"
                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
                                Margin="0 0 0 5" />
@@ -315,13 +358,25 @@
                              PlaceholderText="Enter Google Sheet Url or Id"
                              Text="{Binding GoogleSheetUrlOrId, Mode=TwoWay}" />
 
-                    <TextBlock Text="Sheet name"
-                              Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                              Margin="0 0 0 5" />
+                    <TextBlock Text="Exercises sheet name"
+                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                               Margin="0 0 0 5"
+                               Visibility="{Binding Scope, Converter={StaticResource EnumTargetValueToVisibilityConverter}, ConverterParameter='Exercises,ExercisesAndSets'}" />
 
                     <TextBox Margin="0 0 0 15"
-                             PlaceholderText="Enter sheet name"
-                             Text="{Binding SheetName, Mode=TwoWay}" />
+                             PlaceholderText="Enter exercises sheet name"
+                             Text="{Binding ExercisesSheetName, Mode=TwoWay}"
+                             Visibility="{Binding Scope, Converter={StaticResource EnumTargetValueToVisibilityConverter}, ConverterParameter='Exercises,ExercisesAndSets'}" />
+
+                    <TextBlock Text="Sets sheet name"
+                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                               Margin="0 0 0 5"
+                               Visibility="{Binding Scope, Converter={StaticResource EnumTargetValueToVisibilityConverter}, ConverterParameter='Sets,ExercisesAndSets'}" />
+
+                    <TextBox Margin="0 0 0 15"
+                             PlaceholderText="Enter sets sheet name"
+                             Text="{Binding SetsSheetName, Mode=TwoWay}"
+                             Visibility="{Binding Scope, Converter={StaticResource EnumTargetValueToVisibilityConverter}, ConverterParameter='Sets,ExercisesAndSets'}" />
 
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
