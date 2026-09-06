@@ -152,6 +152,7 @@
     <Compile Include="Models\Dashboard\DashboardCache.cs" />
     <Compile Include="Models\Dashboard\DashboardGrouping.cs" />
     <Compile Include="Models\Dashboard\DashboardTarget.cs" />
+    <Compile Include="Models\ImportExportCache.cs" />
     <Compile Include="Models\ImportExportScope.cs" />
     <Compile Include="Models\NavigationScope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

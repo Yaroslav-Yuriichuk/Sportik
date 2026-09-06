@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Sportik.Desktop.Core.Common;
 using Sportik.Desktop.Core.Common.Export;
 using Sportik.Desktop.Core.Extensions;
-using Sportik.Desktop.Core.Models;
 using Sportik.Desktop.Core.Services.Interfaces;
 using Sportik.Desktop.UI.Models;
 
@@ -105,8 +105,17 @@ namespace Sportik.Desktop.UI.ViewModels.Statistics
 
             if (PersistentCacheService.TryGet(out ImportExportCache importExportCache))
             {
+                ImportExportScopeOption scopeOption = ScopeOptions.FirstOrDefault(option => option.Scope == importExportCache.LastExportScope);
+
+                if (scopeOption != null)
+                {
+                    SetField(ref _selectedScopeOption, scopeOption, nameof(SelectedScopeOption));
+                    Scope = SelectedScopeOption.Scope;
+                }
+
                 GoogleSheetUrlOrId = importExportCache.LastExportGoogleSheetUrlOrId;
-                SetsSheetName = importExportCache.LastExportSheetName;
+                ExercisesSheetName = importExportCache.LastExportExercisesSheetName;
+                SetsSheetName = importExportCache.LastExportSetsSheetName;
             }
         }
 
@@ -136,11 +145,12 @@ namespace Sportik.Desktop.UI.ViewModels.Statistics
             ExportCommand.IsExecutable = false;
             CloseCommand.IsExecutable = false;
 
+            ImportExportScope scope = Scope;
             string googleSheetUrlOrId = GoogleSheetUrlOrId;
             string exercisesSheetName = ExercisesSheetName;
             string setsSheetName = SetsSheetName;
 
-            IStatisticsExporter exporter = Scope switch
+            IStatisticsExporter exporter = scope switch
             {
                 ImportExportScope.Exercises => new GoogleSheetStatisticsExporter(googleSheetUrlOrId, exercisesSheetName, null),
                 ImportExportScope.Sets => new GoogleSheetStatisticsExporter(googleSheetUrlOrId, null, setsSheetName),
@@ -157,8 +167,18 @@ namespace Sportik.Desktop.UI.ViewModels.Statistics
             {
                 ImportExportCache importExportCache = PersistentCacheService.GetOrNew<ImportExportCache>();
 
+                importExportCache.LastExportScope = scope;
                 importExportCache.LastExportGoogleSheetUrlOrId = googleSheetUrlOrId;
-                importExportCache.LastExportSheetName = setsSheetName;
+
+                if (scope == ImportExportScope.Exercises || scope == ImportExportScope.ExercisesAndSets)
+                {
+                    importExportCache.LastExportExercisesSheetName = exercisesSheetName;
+                }
+
+                if (scope == ImportExportScope.Sets || scope == ImportExportScope.ExercisesAndSets)
+                {
+                    importExportCache.LastExportSetsSheetName = setsSheetName;
+                }
 
                 PersistentCacheService.Set(importExportCache);
 
